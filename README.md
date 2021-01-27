@@ -18,6 +18,5 @@ As a case study for the broader project goals, the current project will focus on
 
 
 
-
 ---
 [^1] William D. Aeschbacher, "Report of the Secretary-Treasurer for the Year 1961-1962," *The Mississippi Valley Historical Review* 49, no. 2 (September 1962): 404.
