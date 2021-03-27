@@ -1,9 +1,7 @@
 # Text Cleaning
 
 Started with fresh copy of Territorial-Papers_v22....txt file. 
-
 *Note: these instructions also followed to clean other volumes in TPUS. Where changes were made to accommodate unique features in another volume, they are noted after the initial instructions.*
-
 **TPUSv23**: Discovered numerous poorly scanned pages from the University of Minnesota scan of this volume, resulting in corrupted plain text files. Replaced with University of California scan, but this resulted in several instances where established regular expressions did not capture the OCR idiosyncracies of this volume. Alternative steps are noted where appropriate.
 
 ## Steps
@@ -13,7 +11,7 @@ Started with fresh copy of Territorial-Papers_v22....txt file.
 	REPLACE ``\<pb\1/>``
 	RESULT ``<pb#1/>`` for page 1, etc.
 
-1. Manually copied and pasted frontmatter (pp. 1-22) into a separate .txt file (e.g. ``TPUSv22_frontmatter.txt``).
+1. Manually copied and pasted frontmatter (pp. 1-22) into a separate .txt file [TPUSv22_frontmatter.txt](https://github.com/comp-methods-fsu-2021/Beauchamp_TPUS_project/blob/main/TPUS_Florida_corpus/TPUSv22/TPUSv22_frontmatter.txt).
 
 1. Find and delete internal page headings (separate from PDF HathiTrust page numbers) with headers like: 8 T E R R IT OR I. A L PA P E R S and F L OR I D A T E R R IT OR Y 7
 
@@ -44,13 +42,14 @@ Started with fresh copy of Territorial-Papers_v22....txt file.
 	FIND ``^PART.*$``
 	REPLACE null
 
-1. Manually copied and pasted index (backmatter) into a separate .txt file (e.g. ``TPUSv22_index.txt``).
+1. Manually copied and pasted index (backmatter) into a separate .txt file [TPUSv22_index.txt](https://github.com/comp-methods-fsu-2021/Beauchamp_TPUS_project/blob/main/TPUS_Florida_corpus/TPUSv22/TPUSv22_index.txt).
 
 1. Make all footnotes single lines of text.
 	FIND ``^((\*|^"|^\d{1,3}\s).*) ?\n(?!(\*|"|\d{1,3}\s))``
 	REPLACE ``\1·``  (note space after \1)
 	
 	*Translation: any line that begins with either * or “ or a 1-3 digit number followed by a space, capture all text until the line break, if that line break is not followed by a * or “ or a 1-3 digit number followed by a space. Replace with captured text + space.*
+
 
 1. Delete empy lines
 	FIND ``^\W$``
@@ -60,12 +59,12 @@ Started with fresh copy of Territorial-Papers_v22....txt file.
 	FIND ``\x0c``
 	REPLACE null
 
-1. Save to a new file: (e.g. ``TPUSv22_documents.txt``).
+1. Save to a new file: [TPUSv22_documents.txt](https://github.com/comp-methods-fsu-2021/Beauchamp_TPUS_project/blob/main/TPUS_Florida_corpus/TPUSv22/TPUSv22_documents.txt).
 	
 *We will now delete the footnotes from the documents file, and the documents from the footnotes file.*
 
 
-### On file ``TPUSv22_documents.txt`` (and ``_documents.txt`` for other volumes)
+### On file TPUSv22_documents.txt (and ``_documents.txt`` for other volumes)
 #### Identify, copy, and remove all footnotes
 Still finding footnotes split over more than one line.
 1. Get rid of trailing spaces after full stops.
@@ -81,14 +80,14 @@ Still finding footnotes split over more than one line.
 1. Delete all blank lines.
 	FIND ``^(?:[\t ]*(?:\r?\n|\r))+``
 	REPLACE null
-	*Found this regex at <https://gist.github.com/fomightez/706c1934a07c08b6c441>.*
+	*Found this regex at <https://gist.github.com/fomightez/706c1934a07c08b6c441>. Not entirely clear how it works!*
 
 1. Find all footnotes. 
 	FIND ``^((\d{1,3}\s|^\*|^").*\n)+(<pb#\d{1,3}/>)``
 
 	*This locates all lines that begin with either ``*`` or ``"`` or 1-3 digit number followed by a space, and end with a full stop and line break, repeating until finding the page break notation since footnotes can start anywhere on the page but always end at the bottom of a page.*
 	
-	COPY found text and PASTE into new file named (e.g. ``TPUSv22_footnotes.txt``).
+	COPY found text and PASTE into new file named [TPUSv22_footnotes.txt](https://github.com/comp-methods-fsu-2021/Beauchamp_TPUS_project/blob/main/TPUS_Florida_corpus/TPUSv22/TPUSv22_footnotes.txt). 
 
 	*This will retain the page breaks with the copied footnotes.*
 	REPLACE ``\3``
@@ -206,12 +205,15 @@ Still finding footnotes split over more than one line.
 	FIND ``\](</source>)``
 	REPLACE ``\1``
 
-1. Separate places and dates within ``<place-time>`` tags.
-	1. Tag years.
+*Separate places and dates within ``<place-time>`` tags.*
+1. Tag years.
 	FIND ``(18\d\d).*(</place-time>)``
 	REPLACE ``<year>\1</year>\2``
 	FIND ``[[:punct:]](\d\d).*(</place-time>)``
 	REPLACE ``<year>18\1</year>\2``
+1. Check to make sure every ``<place-time>`` tag has ``<year>`` tags
+	FIND ``(?<!</year>)</place-time>``
+	Manually add needed year tags.
 1. Tag dates.
 	FIND ``(\d{1,2})\s(?=<year>)``
 	REPLACE ``<date>\1</date>``
@@ -231,6 +233,7 @@ Still finding footnotes split over more than one line.
 	REPLACE ``<date>\1</date>``
 	FIND ``(\d{1,2})(th|[[:punct:]]|)\s(?=<year>)``
 	REPLACE ``<date>\1</date>``
+1. Tag months. (2nd pass)
 	FIND ``([JFMASOND][a-z]+)([[:punct:]]|\s)(?=<date>)``
 	REPLACE ``<month>\1</month>``
 	FIND ``([JFMASOND][a-z]+)([[:punct:]])\s(?=<year>)``
@@ -249,6 +252,9 @@ Still finding footnotes split over more than one line.
 1. Check for any dates captured within location tags.
 	FIND ``(\d{1,2}).{1,3}(</location>)``
 	REPLACE ``\2<date>\1</date>``
+1. Check for any months captured within location tags.
+	FIND ``(January|February|March|April|May|June|July|August|September|October|November|December).{1,3}(</location>)``
+	REPLACE ``\2<month>\1</month>``
 1. Remove trailing spaces in ``<location>`` tag.
 	FIND ``\s(</location>)``
 	REPLACE ``\1``
@@ -262,7 +268,7 @@ Still finding footnotes split over more than one line.
 		*Identified 16 matches, instances of more than one Enclosure per document. Corrected by hand.*
 1. Tag headers and dates within enclosures.
 	FIND ``(<enclosure>)(\[E.*?\])(.*?)(\[[JFMASOND][a-z]*.*?\d{4}\])``
-	REPLACE ``\1<encldata>\2</encldata><enclhead>\3</enclhead><encldate>\4</encldate><enclbody>``
+	REPLACE ``\1<enclnote>\2</enclnote><enclhead>\3</enclhead><encldate>\4</encldate><enclbody>``
 1. Close ``<enclbody>`` tags.
 	FIND ``(<enclbody>)(.*)(</enclosure>)``
 	REPLACE ``\1\2</enclbody>\3``
