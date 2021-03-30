@@ -291,3 +291,7 @@ Still finding footnotes split over more than one line.
 	REPLACE ``\n\1``
 	FIND ``(<enclbody>)``
 	REPLACE ``\n\1``
+
+### Test XML for well-formedness
+1. For each XML document, open with a web browser--I used Firefox--to check that the XML is well-formed (i.e. all tags have corresponding closing tags; no errors in nesting). 
+	Correct lines manually as needed.
